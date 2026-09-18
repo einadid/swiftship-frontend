@@ -6,6 +6,7 @@ import {
   HiOutlineLocationMarker,
   HiOutlineUserGroup,
   HiOutlineChartBar,
+  HiOutlineLogout,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';

@@ -8,6 +8,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineCube,
   HiOutlineLocationMarker,
+  HiOutlineSearch,
 } from 'react-icons/hi';
 import { HiOutlineMagnifyingGlass } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
@@ -77,7 +78,7 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-sm text-base-content/70">
-                  <HiOutlineLocation className="inline" /> Dhanmondi, Dhaka → Uttara, Dhaka
+                  <HiOutlineLocationMarker className="inline" /> Dhanmondi, Dhaka → Uttara, Dhaka
                 </p>
                 <progress className="progress progress-success mt-2 w-full" value="100" max="100" />
                 <p className="mt-1 text-xs opacity-60">Booked 2 days ago · Delivered today, 11:42 AM</p>
@@ -152,7 +153,7 @@ export default function Home() {
           Create an account in under a minute and book your first parcel today.
         </p>
         <Link to="/signup" className="btn btn-lg brand-gradient mt-6 gap-2 font-semibold text-white shadow hover:opacity-90">
-          Create Account <HiOutlineArrowRight />
+          Create Account <Arrow  />
         </Link>
       </section>
     </div>
