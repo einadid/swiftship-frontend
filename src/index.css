@@ -18,4 +18,12 @@
   .input-error-text {
     @apply mt-1 text-xs font-medium text-error;
   }
+  /* Small coloured dot used inside status badges — `bg-current` follows the
+     badge text colour (warning / primary / success / error …). */
+  .status-dot {
+    @apply inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current;
+  }
+  .page-title {
+    @apply text-2xl font-extrabold tracking-tight;
+  }
 }

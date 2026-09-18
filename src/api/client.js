@@ -12,7 +12,7 @@ const REFRESH_KEY = 'sw_refresh_token';
 export const getAccessToken = () => localStorage.getItem(ACCESS_KEY);
 export const getRefreshToken = () => localStorage.getItem(REFRESH_KEY);
 
-export function setTokens({ access_token, refresh_token }) {
+export function setTokens({ access_token, refresh_token } = {}) {
   if (access_token) localStorage.setItem(ACCESS_KEY, access_token);
   if (refresh_token) localStorage.setItem(REFRESH_KEY, refresh_token);
 }
@@ -41,12 +41,17 @@ async function tryRefresh() {
   }
 }
 
-/** Ensure a valid access token; kicks off one shared refresh if needed. */
+/** One shared in-flight refresh, so 5 parallel 401s only hit /auth/refresh once. */
+const refreshOnce = () => (refreshPromise ??= tryRefresh().finally(() => (refreshPromise = null)));
+
+/**
+ * Ensure a valid access token.
+ * Used on app boot: if the access token is gone but a refresh token is still
+ * stored, the session is silently restored instead of logging the user out.
+ */
 export async function ensureFreshToken() {
-  if (!getAccessToken()) {
-    return await tryRefresh();
-  }
-  return true;
+  if (getAccessToken()) return true;
+  return refreshOnce();
 }
 
 export function redirectToLogin(reason) {
@@ -56,7 +61,12 @@ export function redirectToLogin(reason) {
   }
 }
 
-export async function api(path, { method = 'GET', body, auth = true, _retry = false } = {}) {
+/**
+ * @param {object}  opts
+ * @param {boolean} opts.redirect  when false, a failed auth does NOT bounce the
+ *                                 visitor to /login (used for the silent boot check).
+ */
+export async function api(path, { method = 'GET', body, auth = true, redirect = true, _retry = false } = {}) {
   let res;
   try {
     const headers = { 'Content-Type': 'application/json' };
@@ -73,10 +83,10 @@ export async function api(path, { method = 'GET', body, auth = true, _retry = fa
 
   // Token expired/invalid -> try refresh once, then retry the original call
   if (res.status === 401 && auth && !_retry) {
-    const ok = await (refreshPromise ?? (refreshPromise = tryRefresh().finally(() => (refreshPromise = null))));
-    if (ok) return api(path, { method, body, auth, _retry: true });
+    const ok = await refreshOnce();
+    if (ok) return api(path, { method, body, auth, redirect, _retry: true });
     clearTokens();
-    redirectToLogin('Your session expired. Please login again.');
+    if (redirect) redirectToLogin('Your session expired. Please login again.');
     throw new Error('Session expired. Please login again.');
   }
 
@@ -88,8 +98,9 @@ export async function api(path, { method = 'GET', body, auth = true, _retry = fa
   }
 
   if (!res.ok) {
-    let detail = data?.detail;
-    if (Array.isArray(detail)) detail = detail.map((d) => d.msg).join('; ');
+    let detail = data?.detail ?? data?.message;
+    if (Array.isArray(detail)) detail = detail.map((d) => d.msg || d).join('; ');
+    else if (detail && typeof detail === 'object') detail = detail.msg || JSON.stringify(detail);
     throw new Error(typeof detail === 'string' && detail ? detail : `Request failed (${res.status})`);
   }
   return data;

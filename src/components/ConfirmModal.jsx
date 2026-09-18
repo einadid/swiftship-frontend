@@ -1,4 +1,5 @@
-import { HiOutlineExclamationTriangle } from 'react-icons/hi2';
+import { HiOutlineExclamationTriangle, HiOutlineCheckCircle } from 'react-icons/hi2';
+import Modal from './Modal';
 
 /** Confirmation modal (used before destructive actions). */
 export default function ConfirmModal({
@@ -13,37 +14,33 @@ export default function ConfirmModal({
   onCancel,
 }) {
   if (!open) return null;
+
   return (
-    <dialog className="modal modal-bottom sm:modal-middle" open>
-      <div className="modal-box">
-        <div className="flex items-start gap-3">
-          <span className={danger ? 'text-error' : 'text-brand-600'}>
+    <Modal open={open} title={title} onClose={onCancel} maxWidth="max-w-md">
+      <div className="flex items-start gap-3">
+        <span className={danger ? 'text-error' : 'text-success'}>
+          {danger ? (
             <HiOutlineExclamationTriangle className="text-3xl" />
-          </span>
-          <div>
-            <h3 className="font-bold">{title}</h3>
-            {message && <p className="mt-1 text-sm opacity-80">{message}</p>}
-          </div>
-        </div>
-        <div className="modal-action">
-          <form method="dialog">
-            <button className="btn btn-ghost" onClick={onCancel}>
-              {cancelText}
-            </button>
-            <button
-              className={`btn ${danger ? 'btn-error' : 'btn-primary'}`}
-              onClick={onConfirm}
-              disabled={loading}
-            >
-              {loading && <span className="loading loading-spinner loading-sm" />}
-              {confirmText}
-            </button>
-          </form>
-        </div>
+          ) : (
+            <HiOutlineCheckCircle className="text-3xl" />
+          )}
+        </span>
+        {message && <p className="mt-1 text-sm opacity-80">{message}</p>}
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onCancel}>close</button>
-      </form>
-    </dialog>
+      <div className="modal-action">
+        <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={loading}>
+          {cancelText}
+        </button>
+        <button
+          type="button"
+          className={`btn ${danger ? 'btn-error' : 'btn-primary'}`}
+          onClick={onConfirm}
+          disabled={loading}
+        >
+          {loading && <span className="loading loading-spinner loading-sm" />}
+          {confirmText}
+        </button>
+      </div>
+    </Modal>
   );
 }

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { api, clearTokens, getAccessToken, setTokens } from '../api/client';
+import { api, clearTokens, ensureFreshToken, setTokens } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -7,23 +7,33 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On mount: restore session from stored tokens (handles token expiry)
+  /**
+   * Boot: restore the session from storage.
+   * - access token missing but refresh token present -> refresh first (token expiry handling)
+   * - `redirect: false` so a stale token on a public page never bounces the visitor
+   */
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      if (!getAccessToken()) {
-        setLoading(false);
-        return;
-      }
       try {
-        const me = await api('/auth/me');
-        setUser(me);
+        const ok = await ensureFreshToken();
+        if (!ok) {
+          clearTokens();
+          if (!cancelled) setUser(null);
+          return;
+        }
+        const me = await api('/auth/me', { redirect: false });
+        if (!cancelled) setUser(me);
       } catch {
         clearTokens();
-        setUser(null);
+        if (!cancelled) setUser(null);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = useCallback(async (email, password) => {
@@ -45,6 +55,8 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(() => api('/auth/me', { redirect: false }).then(setUser), []);
+
   const value = useMemo(
     () => ({
       user,
@@ -54,9 +66,9 @@ export function AuthProvider({ children }) {
       login,
       signup,
       logout,
-      refreshUser: () => api('/auth/me').then(setUser),
+      refreshUser,
     }),
-    [user, loading, login, signup, logout],
+    [user, loading, login, signup, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

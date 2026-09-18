@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { HiOutlineTruck, HiOutlineLockClosed, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
@@ -8,11 +8,16 @@ import { useAuth } from '../context/AuthContext';
 const phoneRe = /^(\+?88)?01[3-9]\d{8}$/;
 
 export default function Signup() {
-  const { signup } = useAuth();
+  const { signup, isAuthed, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '', confirm: '' });
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Already logged in? Skip the form.
+  useEffect(() => {
+    if (isAuthed) navigate(isAdmin ? '/admin' : '/dashboard', { replace: true });
+  }, [isAuthed, isAdmin, navigate]);
 
   const set = (k, v) => {
     setForm((f) => ({ ...f, [k]: v }));
