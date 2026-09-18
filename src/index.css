@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-base-200/50 text-base-content antialiased;
+  }
+}
+
+@layer components {
+  .brand-gradient {
+    @apply bg-gradient-to-r from-brand-600 to-brand-400;
+  }
+  .input-error-text {
+    @apply mt-1 text-xs font-medium text-error;
+  }
+}
