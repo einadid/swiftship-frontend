@@ -98,6 +98,17 @@ export default function ParcelForm({ services, initial, submitLabel = 'Book Parc
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {isEdit && service && (
+        <div className="alert bg-base-200 py-2 text-sm">
+          <span>
+            Service: <strong>{service.name}</strong>{' '}
+            <span className="opacity-70">
+              (base {fmtMoney(service.base_price)} + {fmtMoney(service.price_per_kg)}/kg · the server re-prices by weight)
+            </span>
+          </span>
+        </div>
+      )}
+
       {!isEdit && (
         <label className="form-control w-full">
           <span className="label-text mb-1 font-medium">

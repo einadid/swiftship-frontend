@@ -14,7 +14,7 @@ export default function BookParcel() {
 
   useEffect(() => {
     api('/services/')
-      .then(setServices)
+      .then((data) => setServices(Array.isArray(data) ? data : []))
       .catch((e) => setError(e.message));
   }, []);
 
@@ -46,10 +46,16 @@ export default function BookParcel() {
             <p className="text-xs font-semibold uppercase opacity-60">Tracking number</p>
             <p className="font-mono text-2xl font-extrabold text-brand-700">{created.tracking_number}</p>
             <p className="text-sm opacity-70">
-              {created.service?.name} · {created.weight_kg} kg · {fmtMoney(created.price)}
+              {created.service?.name || created.service_name || 'Delivery'} · {created.weight_kg} kg ·{' '}
+              {fmtMoney(created.price)}
             </p>
             <div className="card-actions justify-center pt-2">
-              <Link to="/parcels" className="btn btn-primary">Go to My Parcels</Link>
+              <Link to="/parcels" className="btn btn-primary">
+                Go to My Parcels
+              </Link>
+              <Link to="/track" state={{ tracking: created.tracking_number }} className="btn btn-outline">
+                Track it
+              </Link>
               <Link to="/parcels/book" className="btn btn-ghost" onClick={() => setCreated(null)}>
                 Book Another
               </Link>

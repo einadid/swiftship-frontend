@@ -63,7 +63,10 @@ export default function Home() {
                   Get Started Free <Arrow />
                 </Link>
               )}
-              <Link to="/track" className="btn btn-lg btn-outline btn-info gap-2">
+              <Link
+                to="/track"
+                className="btn btn-lg gap-2 border-white/50 bg-white/10 text-white hover:border-white hover:bg-white/20"
+              >
                 <HiOutlineMagnifyingGlass /> Track a Parcel
               </Link>
             </div>
@@ -109,8 +112,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="text-center text-3xl font-extrabold">Why SwiftShip?</h2>
         <p className="mx-auto mt-2 max-w-xl text-center opacity-70">
-          Everything a modern logistics platform needs — built for the Phitron final exam with React, Tailwind
-          CSS and FastAPI.
+          Everything a modern logistics platform needs — React + Tailwind on the front, FastAPI + JWT on the back.
         </p>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (

@@ -5,6 +5,7 @@ import { HiOutlineShoppingBag } from 'react-icons/hi';
 import { api, fmtMoney } from '../../api/client';
 import ServiceForm from '../../components/ServiceForm';
 import ConfirmModal from '../../components/ConfirmModal';
+import Modal from '../../components/Modal';
 import FullPageSpinner, { ErrorBox, EmptyState } from '../../components/FullPageSpinner';
 
 export default function AdminServices() {
@@ -105,10 +106,22 @@ export default function AdminServices() {
                       </td>
                       <td>
                         <div className="flex justify-end gap-1">
-                          <button title="Edit" onClick={() => setModal({ mode: 'edit', service: s })} className="btn btn-ghost btn-xs">
+                          <button
+                            type="button"
+                            title="Edit"
+                            aria-label={`Edit ${s.name}`}
+                            onClick={() => setModal({ mode: 'edit', service: s })}
+                            className="btn btn-ghost btn-xs"
+                          >
                             <HiOutlinePencil />
                           </button>
-                          <button title="Delete" onClick={() => setToDelete(s)} className="btn btn-ghost btn-xs text-error">
+                          <button
+                            type="button"
+                            title="Delete"
+                            aria-label={`Delete ${s.name}`}
+                            onClick={() => setToDelete(s)}
+                            className="btn btn-ghost btn-xs text-error"
+                          >
                             <HiOutlineTrash />
                           </button>
                         </div>
@@ -124,26 +137,20 @@ export default function AdminServices() {
       )}
 
       {modal && (
-        <dialog className="modal modal-bottom sm:modal-middle" open>
-          <div className="modal-box w-full max-w-lg">
-            <h3 className="mb-4 text-lg font-bold">
-              {modal.mode === 'create' ? 'Create Service' : `Edit: ${modal.service.name}`}
-            </h3>
-            <ServiceForm
-              key={modal.mode === 'edit' ? modal.service.id : 'new'}
-              initial={modal.mode === 'edit' ? modal.service : undefined}
-              submitLabel={modal.mode === 'create' ? 'Create Service' : 'Save Changes'}
-              onSubmit={handleSave}
-              submitting={busy}
-            />
-            <form method="dialog" className="mt-4 text-right">
-              <button className="btn btn-ghost btn-sm" onClick={() => setModal(null)}>Close</button>
-            </form>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setModal(null)}>close</button>
-          </form>
-        </dialog>
+        <Modal
+          open
+          title={modal.mode === 'create' ? 'Create Service' : `Edit: ${modal.service.name}`}
+          onClose={() => setModal(null)}
+          maxWidth="max-w-lg"
+        >
+          <ServiceForm
+            key={modal.mode === 'edit' ? modal.service.id : 'new'}
+            initial={modal.mode === 'edit' ? modal.service : undefined}
+            submitLabel={modal.mode === 'create' ? 'Create Service' : 'Save Changes'}
+            onSubmit={handleSave}
+            submitting={busy}
+          />
+        </Modal>
       )}
 
       <ConfirmModal

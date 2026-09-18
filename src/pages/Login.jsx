@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { HiOutlineTruck, HiOutlineLockClosed } from 'react-icons/hi';
 import { HiOutlineEnvelope } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
 
+const DEMO_ACCOUNTS = [
+  { label: 'Admin demo', email: 'admin@swiftship.com', password: 'Admin@123' },
+  { label: 'User demo', email: 'user@swiftship.com', password: 'User@123' },
+];
+
 export default function Login() {
-  const { login } = useAuth();
+  const { login, isAuthed, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
@@ -15,6 +20,11 @@ export default function Login() {
 
   const from = location.state?.from;
   const reason = new URLSearchParams(location.search).get('reason');
+
+  // Already logged in? Never show the login form again.
+  useEffect(() => {
+    if (isAuthed) navigate(from || (isAdmin ? '/admin' : '/dashboard'), { replace: true });
+  }, [isAuthed, isAdmin, from, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,6 +104,30 @@ export default function Login() {
               {busy && <span className="loading loading-spinner loading-sm" />} Login
             </button>
           </form>
+
+          {/* Quick-fill for the evaluator — remove if you don't want demo creds in the UI */}
+          <details className="rounded-box border border-base-300 bg-base-200/50 px-3 py-2 text-sm">
+            <summary className="cursor-pointer font-medium">Demo accounts (seeded by the backend)</summary>
+            <div className="mt-2 flex flex-col gap-2">
+              {DEMO_ACCOUNTS.map((acc) => (
+                <div key={acc.email} className="flex items-center justify-between gap-2">
+                  <span className="truncate font-mono text-xs">
+                    {acc.email} · {acc.password}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => {
+                      setForm({ email: acc.email, password: acc.password });
+                      setErrors({});
+                    }}
+                  >
+                    Fill
+                  </button>
+                </div>
+              ))}
+            </div>
+          </details>
 
           <p className="text-center text-sm opacity-70">
             No account yet?{' '}

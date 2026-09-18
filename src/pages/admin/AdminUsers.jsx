@@ -6,6 +6,7 @@ import { api, fmtDate, qs } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import Pagination from '../../components/Pagination';
 import ConfirmModal from '../../components/ConfirmModal';
+import Modal from '../../components/Modal';
 import FullPageSpinner, { ErrorBox, EmptyState } from '../../components/FullPageSpinner';
 
 const DEFAULT_FILTERS = { search: '', page: 1, page_size: 10, sort_by: 'created_at', sort_order: 'desc' };
@@ -95,7 +96,7 @@ export default function AdminUsers() {
 
       {/* Simplified search bar (user list doesn't use status/service/date filters) */}
       <div className="card bg-base-100 p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3">
           <label className="input flex w-full max-w-xs items-center gap-2 border-base-300 bg-base-100">
             <HiOutlineUserGroup />
             <input
@@ -104,8 +105,21 @@ export default function AdminUsers() {
               placeholder="Search name, email, phone…"
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+              aria-label="Search users"
             />
           </label>
+          <select
+            className="select select-sm border-base-300 bg-base-100"
+            value={filters.page_size}
+            onChange={(e) => setFilters({ ...filters, page_size: Number(e.target.value), page: 1 })}
+            aria-label="Users per page"
+          >
+            {[5, 10, 20, 50].map((n) => (
+              <option key={n} value={n}>
+                {n} / page
+              </option>
+            ))}
+          </select>
           <select
             className="select select-sm border-base-300 bg-base-100"
             value={filters.sort_order}
@@ -155,7 +169,9 @@ export default function AdminUsers() {
                       <td>
                         <div className="flex justify-end gap-1">
                           <button
+                            type="button"
                             title="Reset password"
+                            aria-label={`Reset password for ${u.email}`}
                             onClick={() => openReset(u)}
                             className="btn btn-ghost btn-xs"
                           >
@@ -163,7 +179,9 @@ export default function AdminUsers() {
                           </button>
                           {u.id !== admin?.id && (
                             <button
+                              type="button"
                               title={u.is_active ? 'Block user' : 'Unblock user'}
+                              aria-label={u.is_active ? `Block ${u.email}` : `Unblock ${u.email}`}
                               onClick={() => setToggleTarget(u)}
                               className={`btn btn-ghost btn-xs ${u.is_active ? 'text-error' : 'text-success'}`}
                             >
@@ -206,38 +224,37 @@ export default function AdminUsers() {
       />
 
       {resetTarget && (
-        <dialog className="modal modal-bottom sm:modal-middle" open>
-          <div className="modal-box w-full max-w-md">
-            <h3 className="font-bold">Reset password for {resetTarget.email}</h3>
-            <p className="mt-1 text-sm opacity-70">The user will be able to login immediately with this new password.</p>
-            <label className="form-control mt-4 w-full">
-              <span className="label-text font-medium">New password</span>
-              <input
-                type="text"
-                className={`input border-base-300 ${pwError ? 'border-error' : ''}`}
-                placeholder="Min 8 chars, letters + numbers"
-                value={newPassword}
-                onChange={(e) => {
-                  setNewPassword(e.target.value);
-                  setPwError('');
-                }}
-              />
-              {pwError && <span className="input-error-text">{pwError}</span>}
-            </label>
-            <div className="modal-action">
-              <form method="dialog">
-                <button className="btn btn-ghost" onClick={() => setResetTarget(null)}>Cancel</button>
-                <button className="btn btn-primary" onClick={confirmReset} disabled={busy}>
-                  {busy && <span className="loading loading-spinner loading-sm" />}
-                  Reset Password
-                </button>
-              </form>
-            </div>
+        <Modal
+          open
+          title={`Reset password for ${resetTarget.email}`}
+          subtitle="The user can login immediately with the new password."
+          onClose={() => setResetTarget(null)}
+          maxWidth="max-w-md"
+        >
+          <label className="form-control w-full">
+            <span className="label-text font-medium">New password</span>
+            <input
+              type="text"
+              className={`input border-base-300 ${pwError ? 'border-error' : ''}`}
+              placeholder="Min 8 chars, letters + numbers"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPwError('');
+              }}
+            />
+            {pwError && <span className="input-error-text">{pwError}</span>}
+          </label>
+          <div className="modal-action">
+            <button type="button" className="btn btn-ghost" onClick={() => setResetTarget(null)} disabled={busy}>
+              Cancel
+            </button>
+            <button type="button" className="btn btn-primary" onClick={confirmReset} disabled={busy}>
+              {busy && <span className="loading loading-spinner loading-sm" />}
+              Reset Password
+            </button>
           </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setResetTarget(null)}>close</button>
-          </form>
-        </dialog>
+        </Modal>
       )}
     </div>
   );

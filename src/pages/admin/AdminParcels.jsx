@@ -7,6 +7,7 @@ import FiltersBar from '../../components/FiltersBar';
 import Pagination from '../../components/Pagination';
 import StatusBadge from '../../components/Badge';
 import ConfirmModal from '../../components/ConfirmModal';
+import Modal from '../../components/Modal';
 import ParcelForm from '../../components/ParcelForm';
 import FullPageSpinner, { ErrorBox, EmptyState } from '../../components/FullPageSpinner';
 
@@ -34,7 +35,10 @@ export default function AdminParcels() {
   const debounceRef = useRef(null);
 
   const loadServices = useCallback(() => api('/services/?all=true').then(setServices).catch(() => {}), []);
-  useEffect(() => loadServices(), [loadServices]);
+  useEffect(() => {
+    // NOTE: never `return` the promise here — an effect must only return a cleanup fn.
+    loadServices();
+  }, [loadServices]);
 
   const load = useCallback(async (f) => {
     setLoading(true);
@@ -166,10 +170,22 @@ export default function AdminParcels() {
                       <td className="hidden text-sm opacity-70 lg:table-cell">{fmtDate(p.created_at)}</td>
                       <td>
                         <div className="flex justify-end gap-1">
-                          <button title="Edit" onClick={() => setModal({ mode: 'edit', parcel: p })} className="btn btn-ghost btn-xs">
+                          <button
+                            type="button"
+                            title="Edit"
+                            aria-label={`Edit ${p.tracking_number}`}
+                            onClick={() => setModal({ mode: 'edit', parcel: p })}
+                            className="btn btn-ghost btn-xs"
+                          >
                             <HiOutlinePencil />
                           </button>
-                          <button title="Delete" onClick={() => setToDelete(p)} className="btn btn-ghost btn-xs text-error">
+                          <button
+                            type="button"
+                            title="Delete"
+                            aria-label={`Delete ${p.tracking_number}`}
+                            onClick={() => setToDelete(p)}
+                            className="btn btn-ghost btn-xs text-error"
+                          >
                             <HiOutlineTrash />
                           </button>
                         </div>
@@ -194,29 +210,25 @@ export default function AdminParcels() {
 
       {/* Create / Edit modal */}
       {modal && (
-        <dialog className="modal modal-bottom sm:modal-middle" open>
-          <div className="modal-box max-h-[85vh] w-full max-w-2xl overflow-y-auto">
-            <h3 className="mb-4 text-lg font-bold">
-              {modal.mode === 'create' ? 'Create Parcel (as admin)' : `Edit ${modal.parcel.tracking_number}`}
-            </h3>
-            <ParcelForm
-              key={modal.mode === 'edit' ? modal.parcel.id : 'new'}
-              services={services}
-              initial={modal.mode === 'edit' ? modal.parcel : undefined}
-              submitLabel={modal.mode === 'create' ? 'Create Parcel' : 'Save Changes'}
-              onSubmit={handleSave}
-              submitting={busy}
-            />
-            <form method="dialog" className="mt-4 text-right">
-              <button className="btn btn-ghost btn-sm" onClick={() => setModal(null)}>
-                Close
-              </button>
-            </form>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setModal(null)}>close</button>
-          </form>
-        </dialog>
+        <Modal
+          open
+          title={modal.mode === 'create' ? 'Create Parcel (as admin)' : `Edit ${modal.parcel.tracking_number}`}
+          subtitle={
+            modal.mode === 'create'
+              ? 'Parcels created here belong to your admin account.'
+              : 'Editing customer details re-prices the parcel by weight.'
+          }
+          onClose={() => setModal(null)}
+        >
+          <ParcelForm
+            key={modal.mode === 'edit' ? modal.parcel.id : 'new'}
+            services={services}
+            initial={modal.mode === 'edit' ? modal.parcel : undefined}
+            submitLabel={modal.mode === 'create' ? 'Create Parcel' : 'Save Changes'}
+            onSubmit={handleSave}
+            submitting={busy}
+          />
+        </Modal>
       )}
 
       <ConfirmModal
