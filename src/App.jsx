@@ -23,6 +23,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminParcels from './pages/admin/AdminParcels';
 import AdminServices from './pages/admin/AdminServices';
 import AdminUsers from './pages/admin/AdminUsers';
+import Profile from './pages/Profile';
 
 /** Reset scroll position on navigation (SPA pages otherwise open mid-scroll). */
 function ScrollToTop() {
@@ -95,6 +96,7 @@ export default function App() {
               <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/parcels" element={<MyParcels />} />
               <Route path="/parcels/book" element={<BookParcel />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
 
@@ -105,6 +107,8 @@ export default function App() {
               <Route path="/admin/parcels" element={<AdminParcels />} />
               <Route path="/admin/services" element={<AdminServices />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/profile" element={<Profile />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
         </Routes>

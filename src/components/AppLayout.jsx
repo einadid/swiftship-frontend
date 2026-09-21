@@ -7,6 +7,7 @@ import {
   HiOutlineUserGroup,
   HiOutlineChartBar,
   HiOutlineLogout,
+  HiOutlineUser,
 } from 'react-icons/hi';
 import { HiOutlineTruck, HiOutlineBars3BottomLeft } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +22,7 @@ function useSidebarItems() {
       { to: '/admin/services', label: 'Services', icon: HiOutlineShoppingBag },
       { to: '/admin/users', label: 'Users', icon: HiOutlineUserGroup },
       { to: '/track', label: 'Track Parcel', icon: HiOutlineLocationMarker },
+      { to: '/profile', label: 'Profile', icon: HiOutlineUser },
     ];
   }
   return [
@@ -28,6 +30,7 @@ function useSidebarItems() {
     { to: '/parcels', label: 'My Parcels', icon: HiOutlineCube },
     { to: '/parcels/book', label: 'Book Parcel', icon: HiOutlineShoppingBag },
     { to: '/track', label: 'Track Parcel', icon: HiOutlineLocationMarker },
+    { to: '/profile', label: 'Profile', icon: HiOutlineUser },
   ];
 }
 
@@ -39,6 +42,7 @@ const CRUMB_LABELS = {
   services: 'Services',
   users: 'Users',
   track: 'Track Parcel',
+  profile: 'Profile',
 };
 
 /** Simple breadcrumb built from the current path. */

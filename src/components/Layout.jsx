@@ -9,6 +9,7 @@ import {
   HiOutlineX,
   HiOutlineLogin,
   HiOutlineLogout,
+  HiOutlineUser,
 } from 'react-icons/hi';
 import { HiOutlineBars3, HiOutlineUserPlus, HiOutlineEnvelope } from 'react-icons/hi2';
 import { useAuth } from '../context/AuthContext';
@@ -83,6 +84,11 @@ export default function Layout() {
                   <li>
                     <Link to={isAdmin ? '/admin' : '/dashboard'}>
                       <HiOutlineChartBar /> {isAdmin ? 'Admin Dashboard' : 'My Dashboard'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/profile">
+                      <HiOutlineUser /> Profile
                     </Link>
                   </li>
                   <li onClick={handleLogout}>
