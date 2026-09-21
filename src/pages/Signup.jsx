@@ -7,6 +7,23 @@ import { useAuth } from '../context/AuthContext';
 
 const phoneRe = /^(\+?88)?01[3-9]\d{8}$/;
 
+// Reusable field - defined OUTSIDE component to avoid focus loss on re-render
+function Field({ icon: Icon, label, error, ...props }) {
+  return (
+    <label className="form-control w-full">
+      <span className="label-text font-medium">{label}</span>
+      <div className="relative">
+        <Icon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
+        <input
+          className={`input border-base-300 pl-9 ${error ? 'border-error' : ''}`}
+          {...props}
+        />
+      </div>
+      {error && <span className="input-error-text">{error}</span>}
+    </label>
+  );
+}
+
 export default function Signup() {
   const { signup, isAuthed, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -60,17 +77,6 @@ export default function Signup() {
     }
   };
 
-  const Field = ({ icon: Icon, label, ...props }) => (
-    <label className="form-control w-full">
-      <span className="label-text font-medium">{label}</span>
-      <div className="relative">
-        <Icon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
-        <input className={`input border-base-300 pl-9 ${errors[props.name] ? 'border-error' : ''}`} {...props} />
-      </div>
-      {errors[props.name] && <span className="input-error-text">{errors[props.name]}</span>}
-    </label>
-  );
-
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -83,12 +89,62 @@ export default function Signup() {
             <p className="text-sm opacity-60">Start shipping in under a minute</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Field name="full_name" icon={HiOutlineUser} label="Full name" placeholder="e.g. Rahim Uddin" value={form.full_name} onChange={(e) => set('full_name', e.target.value)} />
-            <Field name="email" icon={HiOutlineEnvelope} label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
-            <Field name="phone" icon={HiOutlinePhone} label="Phone" placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
-            <Field name="password" icon={HiOutlineLockClosed} label="Password" type="password" placeholder="Min 8 chars, letters + numbers" value={form.password} onChange={(e) => set('password', e.target.value)} />
-            <Field name="confirm" icon={HiOutlineLockClosed} label="Confirm password" type="password" placeholder="Repeat password" value={form.confirm} onChange={(e) => set('confirm', e.target.value)} />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" autoComplete="off">
+            <Field
+              name="full_name"
+              icon={HiOutlineUser}
+              label="Full name"
+              placeholder="e.g. Rahim Uddin"
+              value={form.full_name}
+              onChange={(e) => set('full_name', e.target.value)}
+              autoComplete="name"
+              error={errors.full_name}
+            />
+            <Field
+              name="email"
+              icon={HiOutlineEnvelope}
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => set('email', e.target.value)}
+              autoComplete="email"
+              error={errors.email}
+            />
+            <Field
+              name="phone"
+              icon={HiOutlinePhone}
+              label="Phone"
+              type="tel"
+              placeholder="01XXXXXXXXX"
+              value={form.phone}
+              onChange={(e) => set('phone', e.target.value)}
+              autoComplete="tel"
+              inputMode="numeric"
+              error={errors.phone}
+            />
+            <Field
+              name="password"
+              icon={HiOutlineLockClosed}
+              label="Password"
+              type="password"
+              placeholder="Min 8 chars, letters + numbers"
+              value={form.password}
+              onChange={(e) => set('password', e.target.value)}
+              autoComplete="new-password"
+              error={errors.password}
+            />
+            <Field
+              name="confirm"
+              icon={HiOutlineLockClosed}
+              label="Confirm password"
+              type="password"
+              placeholder="Repeat password"
+              value={form.confirm}
+              onChange={(e) => set('confirm', e.target.value)}
+              autoComplete="new-password"
+              error={errors.confirm}
+            />
 
             <button type="submit" className="btn brand-gradient text-white shadow hover:opacity-90" disabled={busy}>
               {busy && <span className="loading loading-spinner loading-sm" />} Create Account
